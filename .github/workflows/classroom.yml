@@ -60,7 +60,7 @@ jobs:
       - name: Download EvaluationScript
         run: |
           git clone ${{ env.SCRIPT_REPO }} .github/classroom
-      - uses: yfblock/auto-grading@master
+      - uses: yfblock/os-autograding@master
         id: auto-grading_riscv64
         with:
           outputfile: riscv_output.txt

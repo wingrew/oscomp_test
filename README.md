@@ -16,7 +16,7 @@
 - 一个基本的能运行的 `kernel demo`： [https://github.com/oscomp/starry-next](https://github.com/oscomp/starry-next)
 - 一个能通过所有测例的 `complete kernel reference`：[暂不公布]()
 
-目前已经支持 `libc-test`， `busybox`, `lua`, `iozone` 相关Linux App测例，并且需要分别支持`musl`、`glibc`，测试过程无人工干预，需要由内核自动运行，所有测例文件放在镜像中，内核需要支持 `ext4` 文件系统来读取文件。
+目前已经支持 `libc-test`， `busybox`, `lua`, `iozone` 相关Linux App测例，并且需要分别支持`musl`、`glibc`，测试过程无人工干预，需要由内核自动运行，所有测例文件放在镜像中，内核需要支持 `ext4` 文件系统来读取文件。此外，虽然2025年OS内核赛道需要同时通过riscv和loongarch两种测试，但是本质上区别不大，因此在此只启用riscv。
 
 ## 本地测试
 

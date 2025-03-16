@@ -32,7 +32,7 @@ qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 4 -bio
 ## 在线测试
 github的CI对内核进行测试的执行时间设置为 `300` 秒（`5`分钟），超时后程序会被终止，不再继续执行，所得分数为超时前完成的部分的分数。
 
-github的CI执行完毕后，会在你的repo中的 gp-pages 分支下生成相关的 `log` 文件，你可以看到详细的得分情况和总分。
+github的CI执行完毕后，会在你的repo中的 gh-pages 分支下生成相关的 `log` 文件，你可以看到详细的得分情况和总分。
 
 ## 注意事项
 - `QEMU` 版本为 `9.2.1`

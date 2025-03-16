@@ -38,10 +38,10 @@ jobs:
           components: rust-src, llvm-tools
       - uses: Swatinem/rust-cache@v2
       - run: cargo install cargo-binutils
-      - uses: ./.github/workflows/actions/setup-musl
+      - uses: ./.github/workflows/setup-musl
         with:
           arch: ${{ matrix.arch }}
-      - uses: ./.github/workflows/actions/setup-qemu
+      - uses: ./.github/workflows/setup-qemu
         with:
           qemu-version: ${{ env.qemu-version }}
       - name: Build python environment

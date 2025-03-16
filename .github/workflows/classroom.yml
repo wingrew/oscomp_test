@@ -51,8 +51,8 @@ jobs:
           make all
       - name: run riscv tests
         run: |
-          wget ${{ env.IMG_URL_${{ matrix.arch }} }} -O sdcard-${{ matrix.arch }}.img.gz
-          gunzip sdcard-${{ matrix.arch }}.img.gz
+          wget $IMG_URL_RISCV64 -O sdcard-RISCV64.img.gz
+          gunzip sdcard-RISCV64.img.gz
           qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 4 -bios default -drive file=sdcard-riscv64,if=none,format=raw,id=x0 \
                               -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
                               -rtc base=utc \

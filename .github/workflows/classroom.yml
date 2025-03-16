@@ -2,11 +2,11 @@ name: GitHub Classroom Workflow
 
 on: 
   push:
-  branches:
-    - main
-  paths-ignore:
-    - 'README.md'
-    - '.github/**'
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - '.github/**'
 
 env:
   IMG_URL_RISCV64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-riscv64.img.gz # 镜像url

@@ -5,7 +5,6 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'README.md'
       - '.github/**'
 
 env:
@@ -23,7 +22,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        arch: [riscv64, loongarch64]
         rust-toolchain: [nightly-2025-01-18]
     env:
       qemu-version: 9.2.1
@@ -36,11 +34,15 @@ jobs:
         with:
           toolchain: ${{ matrix.rust-toolchain }}
           components: rust-src, llvm-tools
+          targets: x86_64-unknown-none, riscv64gc-unknown-none-elf, aarch64-unknown-none, aarch64-unknown-none-softfloat, loongarch64-unknown-none
       - uses: Swatinem/rust-cache@v2
       - run: cargo install cargo-binutils
       - uses: ./.github/workflows/setup-musl
         with:
-          arch: ${{ matrix.arch }}
+          arch: riscv64
+      - uses: ./.github/workflows/setup-musl
+        with:
+          arch: loongarch64
       - uses: ./.github/workflows/setup-qemu
         with:
           qemu-version: ${{ env.qemu-version }}
@@ -51,9 +53,9 @@ jobs:
           make all
       - name: run riscv tests
         run: |
-          wget $IMG_URL_RISCV64 -O sdcard-RISCV64.img.gz
-          gunzip sdcard-RISCV64.img.gz
-          qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 4 -bios default -drive file=sdcard-riscv64,if=none,format=raw,id=x0 \
+          wget $IMG_URL_RISCV64 -O sdcard-riscv64.img.gz
+          gunzip sdcard-riscv64.img.gz
+          qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 4 -bios default -drive file=sdcard-riscv64.img,if=none,format=raw,id=x0 \
                               -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
                               -rtc base=utc \
                               -drive file=disk.img,if=none,format=raw,id=x1 -device virtio-blk-device,drive=x1,bus=virtio-mmio-bus.1 | tee riscv_output.txt

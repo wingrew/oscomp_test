@@ -63,16 +63,22 @@ jobs:
         run: |
           git clone ${{ env.SCRIPT_REPO }} .github/classroom
       - uses: oscontent25/os-autograding@master
-        id: autograding
+        id: autogradingbusyboxglibc
         with:
           outputfile: riscv_output.txt
           scriptPath: ./.github/classroom/busybox-glibc
+      - uses: oscontent25/os-autograding@master
+        id: autogradingbusyboxmusl
+        with:
+          outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/busybox-musl
       - name: Autograding Reporter
         uses: classroom-resources/autograding-grading-reporter@v1
         env:
-          AUTOGRADING_RESULTS: "${{steps.autograding.outputs.result}}"
+          AUTOGRADINGBUSYBOXGLIBC_RESULTS: "${{steps.autogradingbusyboxglibc.outputs.result}}"
+          AUTOGRADINGBUSYBOXMUSL_RESULTS: "${{steps.autogradingbusyboxmusl.outputs.result}}"
         with:
-          runners: autograding
+          runners: autogradingbusyboxglibc,autogradingbusyboxmusl
 
   deploy:
     name: Deploy

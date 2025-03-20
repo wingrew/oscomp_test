@@ -12,7 +12,7 @@ env:
   IMG_URL_LOONGARCH64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-loongarch64.img.gz # 镜像url
   TIMEOUT: 300 # 超时时间
   SCRIPT_REPO: https://github.com/oscontent25/EvaluationScript # 脚本仓库
-  TZ: Asia/Shanghai # 设置时区
+
 
 jobs:
   build:
@@ -26,8 +26,8 @@ jobs:
     env:
       qemu-version: 9.2.1
     outputs:
-      details: ${{ steps.auto-grading_riscv64.outputs.details }}
-      points: ${{ steps.auto-grading_riscv64.outputs.points }}
+      details: ${{ steps.autograding.outputs.details }}
+      points: ${{ steps.autograding.outputs.points }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -62,10 +62,17 @@ jobs:
       - name: Download EvaluationScript
         run: |
           git clone ${{ env.SCRIPT_REPO }} .github/classroom
-      - uses: yfblock/os-autograding@master
-        id: auto-grading_riscv64
+      - uses: oscontent25/os-autograding@master
+        id: autograding
         with:
           outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/busybox-glibc
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          AUTOGRADING_RESULTS: "${{steps.autograding.outputs.result}}"
+        with:
+          runners: autograding
 
   deploy:
     name: Deploy
@@ -76,6 +83,8 @@ jobs:
       - name: Test Autograding Outputs
         run: |
           echo "${{ needs.build.outputs.details }}"
+          echo "here ${{ needs.build.outputs.result }}"
+          
       - run: |
           mkdir autograding_logs
           cd autograding_logs

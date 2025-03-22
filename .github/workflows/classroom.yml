@@ -58,14 +58,14 @@ jobs:
           git clone ${{ env.SCRIPT_REPO }} .github/classroom
       - name: busyboxglibc-test
         uses: oscontent25/os-autograding@master
-        id: autogradingbusyboxglibc-test
+        id: autogradingbusyboxglibc
         with:
           outputfile: riscv_output.txt
           scriptPath: ./.github/classroom/busybox-glibc
           max-score: 54
       - name: busyboxmusl-test
         uses: oscontent25/os-autograding@master
-        id: autogradingbusyboxmusl-test
+        id: autogradingbusyboxmusl
         with:
           outputfile: riscv_output.txt
           scriptPath: ./.github/classroom/busybox-musl
@@ -73,8 +73,34 @@ jobs:
       - name: Autograding Reporter
         uses: classroom-resources/autograding-grading-reporter@v1
         env:
-          AUTOGRADINGBUSYBOXGLIBC-TEST_RESULTS: "${{steps.autogradingbusyboxglibc-test.outputs.result}}"
-          AUTOGRADINGBUSYBOXMUSL-TEST_RESULTS: "${{steps.autogradingbusyboxmusl-test.outputs.result}}"
+          AUTOGRADINGBUSYBOXGLIBC_RESULTS: "${{steps.autogradingbusyboxglibc.outputs.result}}"
+          AUTOGRADINGBUSYBOXMUSL_RESULTS: "${{steps.autogradingbusyboxmusl.outputs.result}}"
         with:
-          runners: autogradingbusyboxglibc-test,autogradingbusyboxmusl-test
+          runners: autogradingbusyboxglibc,autogradingbusyboxmusl
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  # deploy:
+  #   name: Deploy
+  #   runs-on: ubuntu-latest
+  #   needs: run-autograding-tests
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Test Autograding Outputs
+  #       run: |
+  #         echo "${{ needs.build.outputs.details }}"
+  #         echo "here ${{ needs.build.outputs.result }}"
+          
+  #     - run: |
+  #         mkdir autograding_logs
+  #         cd autograding_logs
+  #         echo -ne "${{ needs.build.outputs.details }}\nPoints: ${{ needs.build.outputs.points }}" \
+  #           >> `date +%Y_%m_%d_%H_%M_%S`.txt
+      
+  #     - name: GitHub Pages
+  #       uses: crazy-max/ghaction-github-pages@v3
+  #       with:
+  #         target_branch: gh-pages
+  #         build_dir: autograding_logs
+  #         keep_history: true
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

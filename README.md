@@ -36,12 +36,12 @@ qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 4 -bio
 ## 在线测试
 github的CI对内核进行测试的执行时间设置为 `300` 秒（`5`分钟），超时后程序会被终止，不再继续执行，所得分数为超时前完成的部分的分数。
 
-github的CI执行完毕后，会在你的repo中的 gh-pages 分支下生成相关的 `log` 文件，你可以看到详细的得分情况和总分。
+github的CI执行完毕后，你可以在相应仓库的action中查看详细结果。
 
 ## 注意事项
 - `QEMU` 版本为 `9.2.1`
 - `RUST ToolChain` 版本为 `nightly-2025-01-18`
-- 编译目标架构为 `riscv64gc-unknown-none-elf`
+- 编译目标架构为随测试架构不同而变化
 - 内核执行时间为 `5` 分钟
 - 内核可用内存大小为 `2G`
 - 只有 `main` 分支的提交可以被Github 上的CI评测机处理

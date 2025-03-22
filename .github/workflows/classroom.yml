@@ -70,37 +70,60 @@ jobs:
           outputfile: riscv_output.txt
           scriptPath: ./.github/classroom/busybox-musl
           max-score: 54
+      - name: iozoneglibc-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingiozoneglibc
+        with:
+          outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/iozone-glibc
+          max-score: 20
+      - name: iozonemusl-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingiozonemusl
+        with:
+          outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/iozone-musl
+          max-score: 20
+      - name: libctestglibc-test
+        uses: oscontent25/os-autograding@master
+        id: autogradinglibctestglibc
+        with:
+          outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/libc-test-glibc
+          max-score: 221
+      - name: libctestmusl-test
+        uses: oscontent25/os-autograding@master
+        id: autogradinglibctestmusl
+        with:
+          outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/libc-test-musl
+          max-score: 221
+      - name: luaglibc-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingluaglibc
+        with:
+          outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/lua-glibc
+          max-score: 9
+      - name: luamusl-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingluamusl
+        with:
+          outputfile: riscv_output.txt
+          scriptPath: ./.github/classroom/lua-musl
+          max-score: 9
       - name: Autograding Reporter
         uses: classroom-resources/autograding-grading-reporter@v1
         env:
           AUTOGRADINGBUSYBOXGLIBC_RESULTS: "${{steps.autogradingbusyboxglibc.outputs.result}}"
           AUTOGRADINGBUSYBOXMUSL_RESULTS: "${{steps.autogradingbusyboxmusl.outputs.result}}"
+          AUTOGRADINGIOZONEGLIBC_RESULTS: "${{steps.autogradingiozoneglibc.outputs.result}}"
+          AUTOGRADINGIOZONEMUSL_RESULTS: "${{steps.autogradingiozonemusl.outputs.result}}"
+          AUTOGRADINGLIBCTESTGLIBC_RESULTS: "${{steps.autogradinglibctestglibc.outputs.result}}"
+          AUTOGRADINGLIBCTESTMUSL_RESULTS: "${{steps.autogradinglibctestmusl.outputs.result}}"
+          AUTOGRADINGLUAGLIBC_RESULTS: "${{steps.autogradingluaglibc.outputs.result}}"
+          AUTOGRADINGLUAMUSL_RESULTS: "${{steps.autogradingluamusl.outputs.result}}"
         with:
-          runners: autogradingbusyboxglibc,autogradingbusyboxmusl
+          runners: autogradingbusyboxglibc,autogradingbusyboxmusl,autogradingiozoneglibc,autogradingiozonemusl,autogradinglibctestglibc,autogradinglibctestmusl,autogradingluaglibc,autogradingluamusl
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  # deploy:
-  #   name: Deploy
-  #   runs-on: ubuntu-latest
-  #   needs: run-autograding-tests
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Test Autograding Outputs
-  #       run: |
-  #         echo "${{ needs.build.outputs.details }}"
-  #         echo "here ${{ needs.build.outputs.result }}"
-          
-  #     - run: |
-  #         mkdir autograding_logs
-  #         cd autograding_logs
-  #         echo -ne "${{ needs.build.outputs.details }}\nPoints: ${{ needs.build.outputs.points }}" \
-  #           >> `date +%Y_%m_%d_%H_%M_%S`.txt
-      
-  #     - name: GitHub Pages
-  #       uses: crazy-max/ghaction-github-pages@v3
-  #       with:
-  #         target_branch: gh-pages
-  #         build_dir: autograding_logs
-  #         keep_history: true
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

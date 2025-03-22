@@ -2,10 +2,10 @@
 **2025年开源操作系统训练营 oskernel训练**
 
 ## 训练邀请：OS kernel设计与实现
-- [点击：创建自己的内核赛道训练repo-riscv64](https://classroom.github.com/a/NBnQ3JVr)
-- [点击：创建自己的内核赛道训练repo-loongarch64](https://classroom.github.com/a/NBnQ3JVr)
-- [点击：创建自己的内核赛道训练repo-aarch64](https://classroom.github.com/a/NBnQ3JVr)
-- [点击：创建自己的内核赛道训练repo-x86_64](https://classroom.github.com/a/NBnQ3JVr)
+- [点击：创建自己的内核赛道训练repo-riscv64](https://classroom.github.com/a/gVahDVzg)
+- [点击：创建自己的内核赛道训练repo-loongarch64](https://classroom.github.com/a/MSB8JGTD)
+- [点击：创建自己的内核赛道训练repo-aarch64](https://classroom.github.com/a/-g7zNh9w)
+- [点击：创建自己的内核赛道训练repo-x86_64](https://classroom.github.com/a/JMgcpmAc)
 - [查看训练排行榜单](https://oscontent25.github.io/classroom-grading-template/)
 
 总共有四个赛道，测试用例基本一致。

@@ -65,34 +65,66 @@ jobs:
         - name: Download EvaluationScript
           run: |
             git clone ${{ env.SCRIPT_REPO }} .github/classroom
-        - name: riscv-test
+        - name: riscvglibc-test
           uses: oscontent25/os-autograding@master
-          id: autogradingriscv
+          id: autogradingriscvglibc
           with:
             outputfile: riscv64_output.txt
-        - name: loongarch-test
+            scriptPath: .github/classroom/glibc
+        - name: riscvmusl-test
           uses: oscontent25/os-autograding@master
-          id: autogradingloongarch
+          id: autogradingriscvmusl
+          with:
+            outputfile: riscv64_output.txt
+            scriptPath: .github/classroom/musl
+        - name: loongarchglibc-test
+          uses: oscontent25/os-autograding@master
+          id: autogradingloongarchglibc
           with:
             outputfile: loongarch64_output.txt
-        - name: aarch-test
+            scriptPath: .github/classroom/glibc
+        - name: loongarchnusl-test
           uses: oscontent25/os-autograding@master
-          id: autogradingaarch
+          id: autogradingloongarchmusl
+          with:
+            outputfile: loongarch64_output.txt
+            scriptPath: .github/classroom/musl
+        - name: aarchglibc-test
+          uses: oscontent25/os-autograding@master
+          id: autogradingaarchglibc
           with:
             outputfile: aarch64_output.txt
-        - name: x86-test
+            scriptPath: .github/classroom/glibc
+        - name: aarchmusl-test
           uses: oscontent25/os-autograding@master
-          id: autogradingx86
+          id: autogradingaarchmusl
+          with:
+            outputfile: aarch64_output.txt
+            scriptPath: .github/classroom/musl
+        - name: x86glibc-test
+          uses: oscontent25/os-autograding@master
+          id: autogradingx86glibc
           with:
             outputfile: x86_64_output.txt
+            scriptPath: .github/classroom/glibc
+        - name: x86musl-test
+          uses: oscontent25/os-autograding@master
+          id: autogradingx86musl
+          with:
+            outputfile: x86_64_output.txt
+            scriptPath: .github/classroom/musl
         - name: Autograding Reporter
           uses: classroom-resources/autograding-grading-reporter@v1
           env:
-            AUTOGRADINGRISCV_RESULTS: "${{steps.autogradingriscv.outputs.result}}"
-            AUTOGRADINGLOONGARCH_RESULTS: "${{steps.autogradingloongarch.outputs.result}}"
-            AUTOGRADINGAARCH_RESULTS: "${{steps.autogradingaarch.outputs.result}}"
-            AUTOGRADINGX86_RESULTS: "${{steps.autogradingx86.outputs.result}}"
+            AUTOGRADINGRISCVGLIBC_RESULTS: "${{steps.autogradingriscvglibc.outputs.result}}"
+            AUTOGRADINGLOONGARCHGLIBC_RESULTS: "${{steps.autogradingloongarchglibc.outputs.result}}"
+            AUTOGRADINGAARCHGLIBC_RESULTS: "${{steps.autogradingaarchglibc.outputs.result}}"
+            AUTOGRADINGX86GLIBC_RESULTS: "${{steps.autogradingx86glibc.outputs.result}}"
+            AUTOGRADINGRISCVMUSL_RESULTS: "${{steps.autogradingriscvmusl.outputs.result}}"
+            AUTOGRADINGLOONGARCHMUSL_RESULTS: "${{steps.autogradingloongarchmusl.outputs.result}}"
+            AUTOGRADINGAARCHMUSL_RESULTS: "${{steps.autogradingaarchmusl.outputs.result}}"
+            AUTOGRADINGX86MUSL_RESULTS: "${{steps.autogradingx86musl.outputs.result}}"
           with:
-            runners: autogradingriscv,autogradingloongarch,autogradingaarch,autogradingx86
+            runners: autogradingriscvglibc,autogradingloongarchglibc,autogradingaarchglibc,autogradingx86glibc,autogradingriscvmusl,autogradingloongarchmusl,autogradingaarchmusl,autogradingx86musl
             token: ${{ secrets.GITHUB_TOKEN }}
 

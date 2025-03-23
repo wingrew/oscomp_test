@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - main
-    # paths-ignore:
-    #   - '.github/**'
+    paths-ignore:
+      - '.github/**'
 env:
   IMG_URL_riscv64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-riscv64.img.gz # 镜像url
   IMG_URL_loongarch64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-loongarch64.img.gz # 镜像url
@@ -45,10 +45,11 @@ jobs:
         run: sudo apt-get install -y python3 python3-pip
       - name: build os.bin
         run: |
+          touch ${{ matrix.arch }}_output.txt
           make all
       - name: run ${{ matrix.arch }} tests
         run: |
-          touch ${{ matrix.arch }}_output.txt
+          
           wget ${IMG_URL_${{ matrix.arch }}} -O sdcard-${{ matrix.arch }}.img.gz
           gunzip sdcard-${IMG_URL_${{ matrix.arch }}}.img.gz
           qemu-system-${{ matrix.arch }} -machine virt -kernel kernel-${{ matrix.arch }} -m 2G -nographic -smp 4 -bios default -drive file=sdcard-${{ matrix.arch }}.img,if=none,format=raw,id=x0 \

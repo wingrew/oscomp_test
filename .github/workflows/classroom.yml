@@ -93,6 +93,6 @@ jobs:
             AUTOGRADINGAARCH_RESULTS: "${{steps.autogradingaarch.outputs.result}}"
             AUTOGRADINGX86_RESULTS: "${{steps.autogradingx86.outputs.result}}"
           with:
-            runners: autogradingriscv, autogradingloongarch, autogradingaarch, autogradingx86
+            runners: autogradingriscv,autogradingloongarch,autogradingaarch,autogradingx86
             token: ${{ secrets.GITHUB_TOKEN }}
 

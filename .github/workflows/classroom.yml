@@ -14,17 +14,10 @@ env:
   SCRIPT_REPO: https://github.com/oscontent25/EvaluationScript # 脚本仓库
  
 jobs:  
-  build:
+  run-autograding-tests:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [x86_64, riscv64, aarch64, loongarch64]
     env:
       qemu-version: 9.2.1
-    outputs:
-      details: ${{ steps.autogradingbusyboxmusl.outputs.details }}
-      points: ${{ steps.autogradingbusyboxmusl.outputs.points }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,7 +30,16 @@ jobs:
       - run: cargo install cargo-binutils
       - uses: ./.github/workflows/setup-musl
         with:
-          arch: ${{ matrix.arch }}
+          arch: riscv64
+      - uses: ./.github/workflows/setup-musl
+        with:
+          arch: loongarch64
+      - uses: ./.github/workflows/setup-musl
+        with:
+          arch: aarch64
+      - uses: ./.github/workflows/setup-musl
+        with:
+          arch: x86_64
       - uses: ./.github/workflows/setup-qemu
         with:
           qemu-version: ${{ env.qemu-version }}
@@ -45,86 +47,110 @@ jobs:
         run: sudo apt-get install -y python3 python3-pip
       - name: build os.bin
         run: |
-          touch ${{ matrix.arch }}_output.txt
-          make all
-      - name: run ${{ matrix.arch }} tests
-        run: |
-          
-          wget ${IMG_URL_${{ matrix.arch }}} -O sdcard-${{ matrix.arch }}.img.gz
-          gunzip sdcard-${IMG_URL_${{ matrix.arch }}}.img.gz
-          qemu-system-${{ matrix.arch }} -machine virt -kernel kernel-${{ matrix.arch }} -m 2G -nographic -smp 4 -bios default -drive file=sdcard-${{ matrix.arch }}.img,if=none,format=raw,id=x0 \
-                              -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
-                              -rtc base=utc \
-                              -drive file=disk.img,if=none,format=raw,id=x1 -device virtio-blk-device,drive=x1,bus=virtio-mmio-bus.1 | tee ${{ matrix.arch }}_output.txt
-    
-  run-autograding-tests:
-      runs-on: ubuntu-latest
-      needs: build
-      if: always()
-      steps:
-        - name: Download EvaluationScript
-          run: |
-            git clone ${{ env.SCRIPT_REPO }} .github/classroom
-        - name: riscvglibc-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingriscvglibc
-          with:
-            outputfile: riscv64_output.txt
-            scriptPath: .github/classroom/glibc
-        - name: riscvmusl-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingriscvmusl
-          with:
-            outputfile: riscv64_output.txt
-            scriptPath: .github/classroom/musl
-        - name: loongarchglibc-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingloongarchglibc
-          with:
-            outputfile: loongarch64_output.txt
-            scriptPath: .github/classroom/glibc
-        - name: loongarchnusl-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingloongarchmusl
-          with:
-            outputfile: loongarch64_output.txt
-            scriptPath: .github/classroom/musl
-        - name: aarchglibc-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingaarchglibc
-          with:
-            outputfile: aarch64_output.txt
-            scriptPath: .github/classroom/glibc
-        - name: aarchmusl-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingaarchmusl
-          with:
-            outputfile: aarch64_output.txt
-            scriptPath: .github/classroom/musl
-        - name: x86glibc-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingx86glibc
-          with:
-            outputfile: x86_64_output.txt
-            scriptPath: .github/classroom/glibc
-        - name: x86musl-test
-          uses: oscontent25/os-autograding@master
-          id: autogradingx86musl
-          with:
-            outputfile: x86_64_output.txt
-            scriptPath: .github/classroom/musl
-        - name: Autograding Reporter
-          uses: classroom-resources/autograding-grading-reporter@v1
-          env:
-            AUTOGRADINGRISCVGLIBC_RESULTS: "${{steps.autogradingriscvglibc.outputs.result}}"
-            AUTOGRADINGLOONGARCHGLIBC_RESULTS: "${{steps.autogradingloongarchglibc.outputs.result}}"
-            AUTOGRADINGAARCHGLIBC_RESULTS: "${{steps.autogradingaarchglibc.outputs.result}}"
-            AUTOGRADINGX86GLIBC_RESULTS: "${{steps.autogradingx86glibc.outputs.result}}"
-            AUTOGRADINGRISCVMUSL_RESULTS: "${{steps.autogradingriscvmusl.outputs.result}}"
-            AUTOGRADINGLOONGARCHMUSL_RESULTS: "${{steps.autogradingloongarchmusl.outputs.result}}"
-            AUTOGRADINGAARCHMUSL_RESULTS: "${{steps.autogradingaarchmusl.outputs.result}}"
-            AUTOGRADINGX86MUSL_RESULTS: "${{steps.autogradingx86musl.outputs.result}}"
-          with:
-            runners: autogradingriscvglibc,autogradingloongarchglibc,autogradingaarchglibc,autogradingx86glibc,autogradingriscvmusl,autogradingloongarchmusl,autogradingaarchmusl,autogradingx86musl
-            token: ${{ secrets.GITHUB_TOKEN }}
+          touch riscv64_output.txt
+          touch loongarch64_output.txt
+          touch aarch64_output.txt
+          touch x86_64_output.txt
+          make all ARCH=riscv64 || true 
+          make all ARCH=loongarch64 || true 
+          make all ARCH=aarch64 || true 
+          make all ARCH=x86_64 || true 
 
+      - name: run tests
+        run: |
+          wget $IMG_URL_riscv64 -O sdcard-riscv64.img.gz
+          gunzip sdcard-riscv64.img.gz
+          wget $IMG_URL_loongarch64 -O sdcard-loongarch64.img.gz
+          gunzip sdcard-loongarch64.img.gz
+          wget $IMG_URL_aarch64 -O sdcard-aarch64.img.gz
+          gunzip sdcard-aarch64.img.gz
+          wget $IMG_URL_x86_64 -O sdcard-x86_64.img.gz
+          gunzip sdcard-x86_64.img.gz
+          qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 1 -bios default -drive file=sdcard-riscv64.img,if=none,format=raw,id=x0 \
+                              -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
+                              -rtc base=utc | tee riscv64_output.txt || true  
+          qemu-system-x86_64 -machine q35 -kernel kernel-x86_64 -nographic -m 2G -smp 1 \
+                            -device virtio-blk-pci,drive=disk0 \
+                            -drive id=disk0,if=none,format=raw,file=sdcard-x86_64.img -no-reboot \
+                            -device virtio-net-pci,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555 \
+                            -nographic | tee loongarch64_output.txt || true
+          qemu-system-loongarch64 -m 1G -smp 1 -kernel ./kernel-la \
+                            -device virtio-blk-pci,drive=disk0 \
+                            -drive id=disk0,if=none,format=raw,file=sdcard-loongarch64.img -no-reboot \
+                            -device virtio-net-pci,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555 \
+                            -nographic | tee loongarch64_output.txt || true
+          qemu-system-aarch64 -machine virt -kernel kernel-aarch64 -m 2G -nographic -smp 1 \
+                            -device virtio-blk-pci,drive=disk0 \
+                            -drive id=disk0,if=none,format=raw,file=sdcard-aarch64.img -no-reboot \
+                            -device virtio-net-pci,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555 \
+                            -nographic | tee loongarch64_output.txt || true
+ 
+
+      - name: Download EvaluationScript
+        run: |
+            git clone ${{ env.SCRIPT_REPO }} .github/classroom
+
+      - name: riscvglibc-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingriscvglibc
+        with:
+          outputfile: riscv64_output.txt
+          scriptPath: .github/classroom/glibc
+      - name: riscvmusl-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingriscvmusl
+        with:
+          outputfile: riscv64_output.txt
+          scriptPath: .github/classroom/musl
+      - name: loongarchglibc-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingloongarchglibc
+        with:
+          outputfile: loongarch64_output.txt
+          scriptPath: .github/classroom/glibc
+      - name: loongarchnusl-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingloongarchmusl
+        with:
+          outputfile: loongarch64_output.txt
+          scriptPath: .github/classroom/musl
+      - name: aarchglibc-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingaarchglibc
+        with:
+          outputfile: aarch64_output.txt
+          scriptPath: .github/classroom/glibc
+      - name: aarchmusl-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingaarchmusl
+        with:
+          outputfile: aarch64_output.txt
+          scriptPath: .github/classroom/musl
+      - name: x86glibc-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingx86glibc
+        with:
+          outputfile: x86_64_output.txt
+          scriptPath: .github/classroom/glibc
+      - name: x86musl-test
+        uses: oscontent25/os-autograding@master
+        id: autogradingx86musl
+        with:
+          outputfile: x86_64_output.txt
+          scriptPath: .github/classroom/musl
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          AUTOGRADINGRISCVGLIBC_RESULTS: "${{steps.autogradingriscvglibc.outputs.result}}"
+          AUTOGRADINGLOONGARCHGLIBC_RESULTS: "${{steps.autogradingloongarchglibc.outputs.result}}"
+          AUTOGRADINGAARCHGLIBC_RESULTS: "${{steps.autogradingaarchglibc.outputs.result}}"
+          AUTOGRADINGX86GLIBC_RESULTS: "${{steps.autogradingx86glibc.outputs.result}}"
+          AUTOGRADINGRISCVMUSL_RESULTS: "${{steps.autogradingriscvmusl.outputs.result}}"
+          AUTOGRADINGLOONGARCHMUSL_RESULTS: "${{steps.autogradingloongarchmusl.outputs.result}}"
+          AUTOGRADINGAARCHMUSL_RESULTS: "${{steps.autogradingaarchmusl.outputs.result}}"
+          AUTOGRADINGX86MUSL_RESULTS: "${{steps.autogradingx86musl.outputs.result}}"
+        with:
+          runners: autogradingriscvglibc,autogradingloongarchglibc,autogradingaarchglibc,autogradingx86glibc,autogradingriscvmusl,autogradingloongarchmusl,autogradingaarchmusl,autogradingx86musl
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+        

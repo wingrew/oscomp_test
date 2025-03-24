@@ -51,53 +51,13 @@ jobs:
           touch loongarch64_output.txt
           touch aarch64_output.txt
           touch x86_64_output.txt
-          make all ARCH=riscv64 || true 
-          make all ARCH=loongarch64 || true 
-          make all ARCH=aarch64 || true 
-          make all ARCH=x86_64 || true 
-
-      - name: run tests
-        run: |
-          wget $IMG_URL_riscv64 -O sdcard-riscv64.img.gz
-          gunzip sdcard-riscv64.img.gz
-          wget $IMG_URL_loongarch64 -O sdcard-loongarch64.img.gz
-          gunzip sdcard-loongarch64.img.gz
-          wget $IMG_URL_aarch64 -O sdcard-aarch64.img.gz
-          gunzip sdcard-aarch64.img.gz
-          wget $IMG_URL_x86_64 -O sdcard-x86_64.img.gz
-          gunzip sdcard-x86_64.img.gz
-          
-          qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 1 -bios default -drive file=sdcard-riscv64.img,if=none,format=raw,id=x0 \
-                              -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
-                              -rtc base=utc | tee riscv64_output.txt || true  
-
-          qemu-system-loongarch64 -machine virt -m 1G -smp 2 \
-            -kernel kernel-la \
-            -device virtio-blk-pci,drive=disk0 \
-            -drive id=disk0,if=none,format=raw,file=sdcard-loongarch64.img \
-            -device virtio-net-pci,netdev=net0 \
-            -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555 \
-            -nographic | tee loongarch64_output.txt || true  
-          
-          qemu-system-x86_64 -machine q35 -m 2G -smp 2 \
-          -kernel kernel-x86 \
-          -device virtio-blk-pci,drive=disk0 \
-          -drive id=disk0,if=none,format=raw,file=sdcard-x86_64.img \
-          -device virtio-net-pci,netdev=net0 \
-          -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555 \
-          -nographic | tee x86_64_output.txt || true  
-
-          qemu-system-aarch64 \
-          -cpu cortex-a72 -machine virt \
-          -m 128M \
-          -smp 1 \
-          -kernel kernel-ar \
-          -device virtio-blk-pci,drive=disk0 \
-          -drive id=disk0,if=none,format=raw,file=sdcard-aarch64.img \
-          -device virtio-net-pci,netdev=net0 \
-          -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555 \
-          -nographic | tee aarch64_output.txt || true  
- 
+          make oscomp_run ARCH=riscv64 > riscv64_output.txt || true
+          make clean
+          make oscomp_run ARCH=loongarch64 > loongarch64_output.txt || true
+          make clean
+          make oscomp_run ARCH=aarch64 > aarch64_output.txt || true
+          make clean
+          make oscomp_run ARCH=x86_64 > x86_64_output.txt || true
 
       - name: Download EvaluationScript
         run: |
@@ -121,7 +81,7 @@ jobs:
         with:
           outputfile: loongarch64_output.txt
           scriptPath: .github/classroom/glibc
-      - name: loongarchnusl-test
+      - name: loongarchmusl-test
         uses: oscontent25/os-autograding@master
         id: autogradingloongarchmusl
         with:

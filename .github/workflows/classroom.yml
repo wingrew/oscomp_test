@@ -2,15 +2,15 @@ name: Autograding Tests
 on: 
   push:
     branches:
-      - main
+      - main 
     # paths-ignore:
-    #   - '.github/**'
+    #   - '.github/**' 
 env:
   IMG_URL_riscv64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-riscv64.img.gz # 镜像url
   IMG_URL_loongarch64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-loongarch64.img.gz # 镜像url
   IMG_URL_aarch64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-aarch64.img.gz # 镜像url
   IMG_URL_x86_64: https://github.com/Azure-stars/testsuits-for-oskernel/releases/download/v0.1/sdcard-x86_64.img.gz # 镜像url
-  TIMEOUT: 300 # 超时时间
+  TIMEOUT: 1000 # 超时时间
   SCRIPT_REPO: https://github.com/oscontent25/EvaluationScript # 脚本仓库
   
 jobs:  
@@ -48,308 +48,111 @@ jobs:
       - name: build os.bin
         run: |
           touch riscv64_output.txt
+          echo 'start---riscv64' > riscv64_output.txt
           touch loongarch64_output.txt
+          echo 'start---loongarch64' > loongarch64_output.txt
           touch aarch64_output.txt
+          echo 'start---aarch64' > aarch64_output.txt
           touch x86_64_output.txt
-          make oscomp_run ARCH=riscv64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs > riscv64_output.txt || true
+          echo 'start---x86_64' > x86_64_output.txt
+          make oscomp_run ARCH=riscv64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs >> riscv64_output.txt || true
+          echo 'end---riscv64' >> riscv64_output.txt
           make clean
-          make oscomp_run ARCH=loongarch64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs > loongarch64_output.txt || true
+          make oscomp_run ARCH=loongarch64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs >> loongarch64_output.txt || true
+          echo 'end---loongarch64' >> loongarch64_output.txt
           make clean
-          make oscomp_run ARCH=aarch64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs > aarch64_output.txt || true
+          make oscomp_run ARCH=aarch64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs >> aarch64_output.txt || true
+          echo 'end---aarch64' >> aarch64_output.txt
           make clean
-          make oscomp_run ARCH=x86_64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs ACCEL=n > x86_64_output.txt || true
-
+          make oscomp_run ARCH=x86_64 BLK=y NET=y FEATURES=fp_simd,lwext4_rs ACCEL=n >> x86_64_output.txt || true
+          echo 'end---x86_64' >> x86_64_output.txt
+          touch output.txt
+          cat riscv64_output.txt >> output.txt
+          cat loongarch64_output.txt >> output.txt
+          cat aarch64_output.txt >> output.txt
+          cat x86_64_output.txt >> output.txt
+          cat output.txt
+          
       - name: Download EvaluationScript
         run: |
             git clone ${{ env.SCRIPT_REPO }} .github/classroom
 
-      - name: riscvglibcbasic-test
+      - name: glibcbasic-test
         uses: oscontent25/os-autograding@master
-        id: riscvglibcbasic-test
+        id: glibcbasic-test
         with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/glibc-basic
-      - name: loongarchglibcbasic-test
+      - name: glibclibctest-test
         uses: oscontent25/os-autograding@master
-        id: loongarchglibcbasic-test
+        id: glibclibctest-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/glibc-basic
-      - name: aarchglibcbasic-test
-        uses: oscontent25/os-autograding@master
-        id: aarchglibcbasic-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/glibc-basic
-      - name: x86glibcbasic-test
-        uses: oscontent25/os-autograding@master
-        id: x86glibcbasic-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/glibc-basic
-      - name: riscvglibclibctest-test
-        uses: oscontent25/os-autograding@master
-        id: riscvglibclibctest-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/glibc-libctest
-      - name: loongarchglibclibctest-test
+      - name: glibclua-test
         uses: oscontent25/os-autograding@master
-        id: loongarchglibclibctest-test
+        id: glibclua-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/glibc-libctest
-      - name: aarchglibclibctest-test
-        uses: oscontent25/os-autograding@master
-        id: aarchglibclibctest-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/glibc-libctest
-      - name: x86glibclibctest-test
-        uses: oscontent25/os-autograding@master
-        id: x86glibclibctest-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/glibc-libctest
-      - name: riscvglibclua-test
-        uses: oscontent25/os-autograding@master
-        id: riscvglibclua-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/glibc-lua
-      - name: loongarchglibclua-test
+      - name: glibcbusybox-test
         uses: oscontent25/os-autograding@master
-        id: loongarchglibclua-test
+        id: glibcbusybox-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/glibc-lua
-      - name: aarchglibclua-test
-        uses: oscontent25/os-autograding@master
-        id: aarchglibclua-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/glibc-lua
-      - name: x86glibclua-test
-        uses: oscontent25/os-autograding@master
-        id: x86glibclua-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/glibc-lua
-      - name: riscvglibcbusybox-test
-        uses: oscontent25/os-autograding@master
-        id: riscvglibcbusybox-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/glibc-busybox
-      - name: loongarchglibcbusybox-test
+      - name: glibciozone-test
         uses: oscontent25/os-autograding@master
-        id: loongarchglibcbusybox-test
+        id: glibciozone-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/glibc-busybox
-      - name: aarchglibcbusybox-test
-        uses: oscontent25/os-autograding@master
-        id: aarchglibcbusybox-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/glibc-busybox
-      - name: x86glibcbusybox-test
-        uses: oscontent25/os-autograding@master
-        id: x86glibcbusybox-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/glibc-busybox
-      - name: riscvglibciozone-test
-        uses: oscontent25/os-autograding@master
-        id: riscvglibciozone-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/glibc-iozone
-      - name: loongarchglibciozone-test
+      - name: muslbasic-test
         uses: oscontent25/os-autograding@master
-        id: loongarchglibciozone-test
+        id: muslbasic-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/glibc-iozone
-      - name: aarchglibciozone-test
-        uses: oscontent25/os-autograding@master
-        id: aarchglibciozone-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/glibc-iozone
-      - name: x86glibciozone-test
-        uses: oscontent25/os-autograding@master
-        id: x86glibciozone-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/glibc-iozone
-      - name: riscvmuslbasic-test
-        uses: oscontent25/os-autograding@master
-        id: riscvmuslbasic-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/musl-basic
-      - name: loongarchmuslbasic-test
+      - name: musllibctest-test
         uses: oscontent25/os-autograding@master
-        id: loongarchmuslbasic-test
+        id: musllibctest-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/musl-basic
-      - name: aarchmuslbasic-test
-        uses: oscontent25/os-autograding@master
-        id: aarchmuslbasic-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/musl-basic
-      - name: x86muslbasic-test
-        uses: oscontent25/os-autograding@master
-        id: x86muslbasic-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/musl-basic
-      - name: riscvmusllibctest-test
-        uses: oscontent25/os-autograding@master
-        id: riscvmusllibctest-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/musl-libctest
-      - name: loongarchmusllibctest-test
+      - name: musllua-test
         uses: oscontent25/os-autograding@master
-        id: loongarchmusllibctest-test
+        id: musllua-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/musl-libctest
-      - name: aarchmusllibctest-test
-        uses: oscontent25/os-autograding@master
-        id: aarchmusllibctest-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/musl-libctest
-      - name: x86musllibctest-test
-        uses: oscontent25/os-autograding@master
-        id: x86musllibctest-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/musl-libctest
-      - name: riscvmusllua-test
-        uses: oscontent25/os-autograding@master
-        id: riscvmusllua-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/musl-lua
-      - name: loongarchmusllua-test
+      - name: muslbusybox-test
         uses: oscontent25/os-autograding@master
-        id: loongarchmusllua-test
+        id: muslbusybox-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/musl-lua
-      - name: aarchmusllua-test
-        uses: oscontent25/os-autograding@master
-        id: aarchmusllua-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/musl-lua
-      - name: x86musllua-test
-        uses: oscontent25/os-autograding@master
-        id: x86musllua-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/musl-lua
-      - name: riscvmuslbusybox-test
-        uses: oscontent25/os-autograding@master
-        id: riscvmuslbusybox-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/musl-busybox
-      - name: loongarchmuslbusybox-test
+      - name: musliozone-test
         uses: oscontent25/os-autograding@master
-        id: loongarchmuslbusybox-test
+        id: musliozone-test
         with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/musl-busybox
-      - name: aarchmuslbusybox-test
-        uses: oscontent25/os-autograding@master
-        id: aarchmuslbusybox-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/musl-busybox
-      - name: x86muslbusybox-test
-        uses: oscontent25/os-autograding@master
-        id: x86muslbusybox-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/musl-busybox
-      - name: riscvmusliozone-test
-        uses: oscontent25/os-autograding@master
-        id: riscvmusliozone-test
-        with:
-          outputfile: riscv64_output.txt
+          outputfile: output.txt
           scriptPath: .github/classroom/musl-iozone
-      - name: loongarchmusliozone-test
-        uses: oscontent25/os-autograding@master
-        id: loongarchmusliozone-test
-        with:
-          outputfile: loongarch64_output.txt
-          scriptPath: .github/classroom/musl-iozone
-      - name: aarchmusliozone-test
-        uses: oscontent25/os-autograding@master
-        id: aarchmusliozone-test
-        with:
-          outputfile: aarch64_output.txt
-          scriptPath: .github/classroom/musl-iozone
-      - name: x86musliozone-test
-        uses: oscontent25/os-autograding@master
-        id: x86musliozone-test
-        with:
-          outputfile: x86_64_output.txt
-          scriptPath: .github/classroom/musl-iozone
-      
+          
       - name: Autograding Reporter
-        uses: classroom-resources/autograding-grading-reporter@v1
+        uses: oscontent25/autograding-grading-reporter@v1
         env:
-          RISCVGLIBCBASIC-TEST_RESULTS: "${{steps.riscvglibcbasic-test.outputs.result}}"
-          LOONGARCHGLIBCBASIC-TEST_RESULTS: "${{steps.loongarchglibcbasic-test.outputs.result}}"
-          AARCHGLIBCBASIC-TEST_RESULTS: "${{steps.aarchglibcbasic-test.outputs.result}}"
-          X86GLIBCBASIC-TEST_RESULTS: "${{steps.x86glibcbasic-test.outputs.result}}"
-          RISCVGLIBCLIBCTEST-TEST_RESULTS: "${{steps.riscvglibclibctest-test.outputs.result}}"
-          LOONGARCHGLIBCLIBCTEST-TEST_RESULTS: "${{steps.loongarchglibclibctest-test.outputs.result}}"
-          AARCHGLIBCLIBCTEST-TEST_RESULTS: "${{steps.aarchglibclibctest-test.outputs.result}}"
-          X86GLIBCLIBCTEST-TEST_RESULTS: "${{steps.x86glibclibctest-test.outputs.result}}"
-          RISCVGLIBCLUA-TEST_RESULTS: "${{steps.riscvglibclua-test.outputs.result}}"
-          LOONGARCHGLIBCLUA-TEST_RESULTS: "${{steps.loongarchglibclua-test.outputs.result}}"
-          AARCHGLIBCLUA-TEST_RESULTS: "${{steps.aarchglibclua-test.outputs.result}}"
-          X86GLIBCLUA-TEST_RESULTS: "${{steps.x86glibclua-test.outputs.result}}"
-          RISCVGLIBCBUSYBOX-TEST_RESULTS: "${{steps.riscvglibcbusybox-test.outputs.result}}"
-          LOONGARCHGLIBCBUSYBOX-TEST_RESULTS: "${{steps.loongarchglibcbusybox-test.outputs.result}}"
-          AARCHGLIBCBUSYBOX-TEST_RESULTS: "${{steps.aarchglibcbusybox-test.outputs.result}}"
-          X86GLIBCBUSYBOX-TEST_RESULTS: "${{steps.x86glibcbusybox-test.outputs.result}}"
-          RISCVGLIBCIOZONE-TEST_RESULTS: "${{steps.riscvglibciozone-test.outputs.result}}"
-          LOONGARCHGLIBCIOZONE-TEST_RESULTS: "${{steps.loongarchglibciozone-test.outputs.result}}"
-          AARCHGLIBCIOZONE-TEST_RESULTS: "${{steps.aarchglibciozone-test.outputs.result}}"
-          X86GLIBCIOZONE-TEST_RESULTS: "${{steps.x86glibciozone-test.outputs.result}}"
-          RISCVMUSLBASIC-TEST_RESULTS: "${{steps.riscvmuslbasic-test.outputs.result}}"
-          LOONGARCHMUSLBASIC-TEST_RESULTS: "${{steps.loongarchmuslbasic-test.outputs.result}}"
-          AARCHMUSLBASIC-TEST_RESULTS: "${{steps.aarchmuslbasic-test.outputs.result}}"
-          X86MUSLBASIC-TEST_RESULTS: "${{steps.x86muslbasic-test.outputs.result}}"
-          RISCVMUSLLIBCTEST-TEST_RESULTS: "${{steps.riscvmusllibctest-test.outputs.result}}"
-          LOONGARCHMUSLLIBCTEST-TEST_RESULTS: "${{steps.loongarchmusllibctest-test.outputs.result}}"
-          AARCHMUSLLIBCTEST-TEST_RESULTS: "${{steps.aarchmusllibctest-test.outputs.result}}"
-          X86MUSLLIBCTEST-TEST_RESULTS: "${{steps.x86musllibctest-test.outputs.result}}"
-          RISCVMUSLLUA-TEST_RESULTS: "${{steps.riscvmusllua-test.outputs.result}}"
-          LOONGARCHMUSLLUA-TEST_RESULTS: "${{steps.loongarchmusllua-test.outputs.result}}"
-          AARCHMUSLLUA-TEST_RESULTS: "${{steps.aarchmusllua-test.outputs.result}}"
-          X86MUSLLUA-TEST_RESULTS: "${{steps.x86musllua-test.outputs.result}}"
-          RISCVMUSLBUSYBOX-TEST_RESULTS: "${{steps.riscvmuslbusybox-test.outputs.result}}"
-          LOONGARCHMUSLBUSYBOX-TEST_RESULTS: "${{steps.loongarchmuslbusybox-test.outputs.result}}"
-          AARCHMUSLBUSYBOX-TEST_RESULTS: "${{steps.aarchmuslbusybox-test.outputs.result}}"
-          X86MUSLBUSYBOX-TEST_RESULTS: "${{steps.x86muslbusybox-test.outputs.result}}"
-          RISCVMUSLIOZONE-TEST_RESULTS: "${{steps.riscvmusliozone-test.outputs.result}}"
-          LOONGARCHMUSLIOZONE-TEST_RESULTS: "${{steps.loongarchmusliozone-test.outputs.result}}"
-          AARCHMUSLIOZONE-TEST_RESULTS: "${{steps.aarchmusliozone-test.outputs.result}}"
-          X86MUSLIOZONE-TEST_RESULTS: "${{steps.x86musliozone-test.outputs.result}}"
-
+          GLIBCBASIC-TEST_RESULTS: "${{steps.glibcbasic-test.outputs.result}}"
+          GLIBCLIBCTEST-TEST_RESULTS: "${{steps.glibclibctest-test.outputs.result}}"
+          GLIBCLUA-TEST_RESULTS: "${{steps.glibclua-test.outputs.result}}"
+          GLIBCBUSYBOX-TEST_RESULTS: "${{steps.glibcbusybox-test.outputs.result}}"
+          GLIBCIOZONE-TEST_RESULTS: "${{steps.glibciozone-test.outputs.result}}"
+          MUSLBASIC-TEST_RESULTS: "${{steps.muslbasic-test.outputs.result}}"
+          MUSLLIBCTEST-TEST_RESULTS: "${{steps.musllibctest-test.outputs.result}}"
+          MUSLLUA-TEST_RESULTS: "${{steps.musllua-test.outputs.result}}"
+          MUSLBUSYBOX-TEST_RESULTS: "${{steps.muslbusybox-test.outputs.result}}"
+          MUSLIOZONE-TEST_RESULTS: "${{steps.musliozone-test.outputs.result}}"
         with:
-          runners: riscvglibcbasic-test,loongarchglibcbasic-test,aarchglibcbasic-test,x86glibcbasic-test,riscvglibclibctest-test,loongarchglibclibctest-test,aarchglibclibctest-test,x86glibclibctest-test,riscvglibclua-test,loongarchglibclua-test,aarchglibclua-test,x86glibclua-test,riscvglibcbusybox-test,loongarchglibcbusybox-test,aarchglibcbusybox-test,x86glibcbusybox-test,riscvglibciozone-test,loongarchglibciozone-test,aarchglibciozone-test,x86glibciozone-test,riscvmuslbasic-test,loongarchmuslbasic-test,aarchmuslbasic-test,x86muslbasic-test,riscvmusllibctest-test,loongarchmusllibctest-test,aarchmusllibctest-test,x86musllibctest-test,riscvmusllua-test,loongarchmusllua-test,aarchmusllua-test,x86musllua-test,riscvmuslbusybox-test,loongarchmuslbusybox-test,aarchmuslbusybox-test,x86muslbusybox-test,riscvmusliozone-test,loongarchmusliozone-test,aarchmusliozone-test,x86musliozone-test
+          runners: glibcbasic-test,glibclibctest-test,glibclua-test,glibcbusybox-test,glibciozone-test,muslbasic-test,musllibctest-test,musllua-test,muslbusybox-test,musliozone-test
           token: ${{ secrets.GITHUB_TOKEN }}
 
         

@@ -48,9 +48,9 @@ jobs:
       
       - name: build os.bin
         run: |
-          wget ${{IMG_URL_riscv64}}
+          wget ${{ env.IMG_URL_riscv64 }}
           gunzip sdcard-riscv64.img.gz
-          wget ${{IMG_URL_loongarch64}}
+          wget ${{ env.IMG_URL_loongarch64 }}
           gunzip sdcard-loongarch64.img.gz          
           make all
           touch riscv64_output.txt

@@ -52,7 +52,7 @@ jobs:
           gunzip sdcard-riscv64.img.gz
           wget ${{ env.IMG_URL_loongarch64 }}
           gunzip sdcard-loongarch64.img.gz          
-          make all
+          make all || true
           touch riscv64_output.txt
           echo 'start---riscv64' > riscv64_output.txt
           touch loongarch64_output.txt

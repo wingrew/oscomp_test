@@ -57,16 +57,29 @@ jobs:
           echo 'start---riscv64' > riscv64_output.txt
           touch loongarch64_output.txt
           echo 'start---loongarch64' > loongarch64_output.txt
-          qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 2 -bios default -drive file=sdcard-riscv64.img,if=none,format=raw,id=x0 \
-                    -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
-                    -rtc base=utc \
-                    -drive file=disk.img,if=none,format=raw,id=x1 -device virtio-blk-device,drive=x1,bus=virtio-mmio-bus.1 >> riscv64_output.txt
+          if [ -f "disk.img" ]; then
+            qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 2 -bios default -drive file=sdcard-riscv64.img,if=none,format=raw,id=x0 \
+                      -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
+                      -rtc base=utc \
+                      -drive file=disk.img,if=none,format=raw,id=x1 -device virtio-blk-device,drive=x1,bus=virtio-mmio-bus.1 >> riscv64_output.txt || true              
+          else
+            qemu-system-riscv64 -machine virt -kernel kernel-rv -m 2G -nographic -smp 2 -bios default -drive file=sdcard-riscv64.img,if=none,format=raw,id=x0 \
+                      -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -no-reboot -device virtio-net-device,netdev=net -netdev user,id=net \
+                      -rtc base=utc >> riscv64_output.txt || true       
+          fi
           echo 'end---riscv64' >> riscv64_output.txt
-          qemu-system-loongarch64 -kernel kernel-la -m 2G -nographic -smp 2 -drive file=sdcard-loongarch64.img,if=none,format=raw,id=x0  \
-                        -device virtio-blk-pci,drive=x0,bus=virtio-mmio-bus.0 -no-reboot  -device virtio-net-pci,netdev=net0 \
-                        -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555  \
-                        -rtc base=utc \
-                        -drive file=disk.img,if=none,format=raw,id=x1 -device virtio-blk-pci,drive=x1,bus=virtio-mmio-bus.1 >> loongarch64_output.txt
+          if [ -f "disk-la.img" ]; then
+            qemu-system-loongarch64 -kernel kernel-la -m 2G -nographic -smp 2 -drive file=sdcard-loongarch64.img,if=none,format=raw,id=x0  \
+                          -device virtio-blk-pci,drive=x0,bus=virtio-mmio-bus.0 -no-reboot  -device virtio-net-pci,netdev=net0 \
+                          -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555  \
+                          -rtc base=utc \
+                          -drive file=disk-la.img,if=none,format=raw,id=x1 -device virtio-blk-pci,drive=x1,bus=virtio-mmio-bus.1 >> loongarch64_output.txt || true
+          else
+            qemu-system-loongarch64 -kernel kernel-la -m 2G -nographic -smp 2 -drive file=sdcard-loongarch64.img,if=none,format=raw,id=x0  \
+                          -device virtio-blk-pci,drive=x0,bus=virtio-mmio-bus.0 -no-reboot  -device virtio-net-pci,netdev=net0 \
+                          -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555  \
+                          -rtc base=utc >> loongarch64_output.txt || true
+          fi
           echo 'end---loongarch64' >> loongarch64_output.txt
           touch output.txt
           cat riscv64_output.txt >> output.txt
